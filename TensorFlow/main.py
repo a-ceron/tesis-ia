@@ -1,7 +1,7 @@
-from utils import tools
 from models import VGG
+
 def VGG16():
-    vgg = VGG.VGG16()
+    vgg = VGG.My_VGG16()
 
     vgg.model()
     vgg.train()    

@@ -11,12 +11,11 @@ from keras.preprocessing.image import ImageDataGenerator
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ..utils.consts import *
-from ..utils.tools import *
+from models.utils import tools, consts
 
-class VGG16:
+class My_VGG16:
     def __init__(self):
-        self.vgg  = VGG16(input_shape=IMAGE_SIZE_100 + [3], 
+        self.vgg  = VGG16(input_shape=consts.IMAGE_SIZE_100 + [3], 
                             weights='imagenet', # Pesos pre-entrenados de ImageNet
                             include_top=False # No incluye la capa densa
                             )
@@ -24,12 +23,12 @@ class VGG16:
         for layer in self.vgg.layers:
             layer.trainable = False
 
-        self.train_files = DATA_PATH + '/Training'
-        self.test_files = DATA_PATH + '/Test'
+        self.train_files = consts.DATA_PATH + '/Training'
+        self.test_files = consts.DATA_PATH + '/Test'
         
 
     def model(self):
-        folders = get_classes(self.train_files)
+        folders = tools.get_classes(self.train_files)
         # A partir de aquí puedes agregar capas
         x = Flatten()(self.vgg.output)
         prediction = Dense(len(folders), activation='softmax')(x)
@@ -54,7 +53,7 @@ class VGG16:
         )
 
         # Acá nomas para ver qué pasa
-        test_gen = gen.flow_from_directory(self.test_files, target_size=IMAGE_SIZE_100)
+        test_gen = gen.flow_from_directory(self.test_files, target_size=consts.IMAGE_SIZE_100)
         print(test_gen.class_indices)
 
         labels = [None] * len(test_gen.class_indices)
@@ -71,14 +70,14 @@ class VGG16:
 
         # Aca lo bueno
         train_generator = gen.flow_from_directory(self.train_files,
-                                                target_size=IMAGE_SIZE_100,
+                                                target_size=consts.IMAGE_SIZE_100,
                                                 shuffle=True,
-                                                batch_size=THITTY_TWO_BATCH_SIZE)
+                                                batch_size=consts.THITTY_TWO_BATCH_SIZE)
         valid_generator = gen.flow_from_directory(self.test_files,
-                                                target_size=IMAGE_SIZE_100,
+                                                target_size=consts.IMAGE_SIZE_100,
                                                 shuffle=True,
-                                                batch_size=THITTY_TWO_BATCH_SIZE)
-        return train_generator, valid_generator
+                                                batch_size=consts.THITTY_TWO_BATCH_SIZE)
+        return train_generator, valid_generator, gen
 
     def train(self):
         self.model.compile(
@@ -87,22 +86,22 @@ class VGG16:
             metrics=['accuracy']
         )
         
-        train_generator, valid_generator = self.data()
+        train_generator, valid_generator, gen = self.data()
         r = self.model.fit_generator(
             train_generator,
             validation_data=valid_generator,   
-            epochs=FIVE_EPOCHS,
-            steps_per_epoch=len(self.train_files) // THITTY_TWO_BATCH_SIZE,
-            validation_steps=len(self.test_files) // THITTY_TWO_BATCH_SIZE,
+            epochs=consts.TEN_EPOCHS,
+            steps_per_epoch=len(self.train_files) // consts.THITTY_TWO_BATCH_SIZE,
+            validation_steps=len(self.test_files) // consts.THITTY_TWO_BATCH_SIZE,
         )
 
-        self.plot(r, train_generator, valid_generato)
+        self.plot(r, train_generator, valid_generator, gen)
         return r
     
-    def plot(self, r, train_generator, test_generator):
-        cm = get_confusion_matrix(self.train_files, len(self.train_files), train_generator, IMAGE_SIZE_100, True, self.model)
+    def plot(self, r, train_generator, test_generator, gen):
+        cm = tools.get_confusion_matrix(self.train_files, len(self.train_files), gen, consts.IMAGE_SIZE_100, True, self.model, consts.THITTY_TWO_BATCH_SIZE)
         print(cm)
-        test_cm = get_confusion_matrix(self.test_files, len(self.test_files), test_generator, IMAGE_SIZE_100, True, self.model)
+        test_cm = tools.get_confusion_matrix(self.test_files, len(self.test_files), gen, consts.IMAGE_SIZE_100, True, self.model, consts.THITTY_TWO_BATCH_SIZE)
         print(test_cm)
 
         plt.plot(r.history['loss'], label='train loss')
