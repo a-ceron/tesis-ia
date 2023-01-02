@@ -3,6 +3,9 @@ import numpy as np
 
 from sklearn.metrics import confusion_matrix
 
+def max_norm(data):
+  return data/np.max(data)
+
 def mkdir(path:str):
     """Make a directory if it does not exist.
 
