@@ -133,3 +133,4 @@ dmypy.json
 
 # Large files
 TensorFlow/data/*
+pyTorch/data/*

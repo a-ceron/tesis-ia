@@ -1,5 +1,6 @@
-from models import VGG, ResNet
+from models._old import VGG
 from models import models as m
+from models._old import ResNet
 from models.utils import tools
 
 from tensorflow.keras.datasets import cifar10

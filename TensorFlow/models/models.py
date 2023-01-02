@@ -9,35 +9,24 @@ class CNN:
         super().__init__()
         self.num_classes = num_classes
         self.input_shape = input_shape
-        self.layers = self._gen_layers(layers)
+        self.layers = layers
         self.batch_size = batch_size
         self.epochs = epochs
 
-    def _gen_layers(self, layers:list):
-        # Aquí se generan las capas
-        l = []
-        n = len(layers)
-        base = 2
-        p = 6
-
-        for i in range(n):
-            if layers[i] is not None:
-                if isinstance(layers[i], list):
-                    for j in layers[i]:
-                        for _ in range(j):
-                            l.append(power(base, p + i))
-                else:
-                    for _ in range(layers[i]):
-                        l.append(power(base, p + i))
-        return l
-
-
     def block(self, input):
-        x = Conv2D(self.layers[0], (3, 3), activation='relu', padding='same')(input)
+        x = Conv2D(64, (3, 3), activation='relu', padding='same')(input)
         x = MaxPooling2D()(x)
-        for layer in self.layers[1:]:
-            x = Conv2D(layer, (3, 3), activation='relu', padding='same')(x)
-            x = MaxPooling2D()(x)
+
+        x = Conv2D(128, (3, 3), activation='relu', padding='same')(x)
+        x = MaxPooling2D()(x)
+
+        x = Conv2D(256, (3, 3), activation='relu', padding='same')(x)
+        x = MaxPooling2D()(x)
+
+        x = Conv2D(512, (3, 3), activation='relu', padding='same')(x)
+        x = Conv2D(512, (3, 3), activation='relu', padding='same')(x)
+        x = MaxPooling2D()(x)
+        
         return x
     
     def model(self):
