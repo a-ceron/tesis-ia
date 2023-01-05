@@ -23,6 +23,8 @@ def CNN():
 
     batch_size = 32
     K = len(classes)
+    epochs = 5
+
     # Paso 1. Obtenemos los datos
     trainset = torchvision.datasets.CIFAR10(root='./data', 
                                         train=True,
@@ -39,10 +41,25 @@ def CNN():
                                             shuffle=False, num_workers=2)
     
     # Paso 2. Creamos el modelo
-    cnn = models.MyCNN(K)
+    model = models.MyCNN(K)
 
-    print(cnn)
+    print(model)
     # Paso 3. Entrenamos el modelo
+    epocas = 5
+
+    train_losses = [] # almacenamos la perdida al entrenar
+    test_losses = []
+
+    train_correct = []  # Almacenamos el númer de elementos correctamente identificados
+    test_correct = []
+    for epoca in range(epochs):
+        trn_corr = 0
+        tst_corr = 0
+        for index, (X_train, y_train) in enumerate(trainloader):
+            y_pred = model(X_train)
+            loss = 
+
+
 
 def main():
     CNN()
