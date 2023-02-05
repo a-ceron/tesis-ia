@@ -1,22 +1,8 @@
-from models import models
-
-import torchvision
-import torch
-import torch.optim as optim
-import torch.nn as nn
-
-import matplotlib.pyplot as plt
-import numpy as np
-
-# functions to show an image
-
-
 def imshow(img):
     img = img / 2 + 0.5     # unnormalize
     npimg = img.numpy()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
     plt.show()
-
 
 def CNN():
     classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
@@ -58,11 +44,3 @@ def CNN():
         for index, (X_train, y_train) in enumerate(trainloader):
             y_pred = model(X_train)
             loss = 
-
-
-
-def main():
-    CNN()
-
-if __name__ == '__main__':
-    main()
