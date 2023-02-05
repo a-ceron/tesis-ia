@@ -12,7 +12,7 @@ Bajo la tutoria del Dr. Gibran Fuentes
 IIMAS, UNAM
 ###########################################
 """
-from . import myTools as tools
+from models.tools import myTools
 
 from torch.utils.data import Dataset
 from PIL import Image
@@ -52,7 +52,7 @@ class Dataset_Lens(Dataset):
     def __init__(self, root:str, label:str, transform=None) -> None:
         super(Dataset_Lens, self).__init__()
         
-        self.metadatos = tools.pd.read_csv(root + f'/metadatos/{label}.csv') 
+        self.metadatos = myTools.pd.read_csv(root + f'/metadatos/{label}.csv') 
         self.length = self.metadatos.shape[0]
         self.transform = transform
 
