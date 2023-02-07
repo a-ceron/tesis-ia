@@ -35,7 +35,9 @@ def train(generator, discriminator, g_opt, d_opt, data_loader,
             noise = torch.randn(batch_size, noise_dim, device=device)
             real_labels = torch.ones((batch_size, 1)).to(device)
             fake_labels = torch.zeros((batch_size, 1)).to(device)
+            # print(f'train noise: {noise.shape}')
             gen_img = generator(noise)
+            # print(f'train gen_img: {gen_img.shape}')
             fake_out = discriminator(gen_img)
 
             g_loss = loss_fn(fake_out, real_labels)
@@ -62,7 +64,7 @@ def train(generator, discriminator, g_opt, d_opt, data_loader,
 
         if epoch % plot_inter == 0:
             print(f'Time for epoch {epoch} is {time.time()-start:.4f} sec G loss: {g_loss_avg:.4f} D loss: {d_loss_avg:.4f}')
-            plot_batch(generator, device)
+            plot_batch(generator, device, batch_size, noise_dim)
 
 def deprocess(img):
     return img * 127.5 + 127.5
@@ -147,23 +149,24 @@ def main():
     test_dataloader = lens_dataloader(label, batch_size, shuffle, num_workers, pin_memory)
 
     # Model generator
-    noise = torch.randn(batch_size, noise_dim)
+    noise = torch.randn(fig_size, noise_dim)
+    print(f'noise: {noise.shape}')
     test_model_generator = FGAN.Generator(fig_size, noise_dim)
-    print(test_model_generator)
+    # print(test_model_generator) # Descomentar para ver el modelo
     
     test_batch, _ = next(iter(test_dataloader))
-    print(test_batch.shape)
+    print(f'Imagenes primer objeto del batch: {test_batch.shape}')
     gen_batch = test_model_generator(noise)
     # ([batch, clases, altura, anchura])
-    print(gen_batch.shape)  # torch.Size([32, 3, 32, 32])
+    print(f'generación con modelo: {gen_batch.shape}')  # torch.Size([32, 3, 32, 32])
     
 
     # Model discriminator
     test_model_discriminator = FGAN.Discriminator(fig_size)
-    print(test_model_discriminator)
+    # print(test_model_discriminator)   # Descomentar para ver el modelo
 
     dis_batch = test_model_discriminator(test_batch)
-    print(dis_batch.shape)
+    print(f'generación del discriminador: {dis_batch.shape}')
 
     device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
     print(device)
@@ -187,7 +190,7 @@ def main():
     epochs = 500
     plot_inter = 50
 
-    train(test_model_generator, test_model_generator, g_optimizer, d_optimizer, 
+    train(test_model_generator, test_model_discriminator, g_optimizer, d_optimizer, 
         test_dataloader, loss_fn, epochs, plot_inter, device, noise_dim)
 if __name__ == '__main__':
     main()

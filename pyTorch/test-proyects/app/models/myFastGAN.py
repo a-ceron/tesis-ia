@@ -1,55 +1,9 @@
 import torch
 from torch import nn
 
-class FastGAN(nn.Module):
-    """ TOWARDS FASTER AND STABILIZED GAN TRAINING FOR HIGH-FIDELITY FEW-SHOT IMAGE SYNTHESIS
 
-    Training Generatice Adversarial Networks (GAN)
-    this model try to develop the few-shot image 
-    synthesis task for GAN with minimum computing
-    cost.
-
-    With this model we expect get a model convergency 
-    from scratch in less than a pair of hours of 
-    traning on a sigle RTX-2080. [Modelo por definir]
-
-    Also we include a pre-trained model using [cita]
-    and data aumentation to generate more examples.
-    """
-    def __init__(self):
-        super(FastGAN, self).__init__()
-
-
-    def forward(self, x):
-        return x
-
-
-class Generator(nn.Module):
-    def __init__(self, filters=128, noise_dim=64):
-        super(Generator, self).__init__()
-        self.filters = filters
-        self.init = nn.Sequential(
-            nn.Linear(noise_dim, filters * 4 * 4),
-            nn.BatchNorm1d(filters * 4 * 4),
-            nn.LeakyReLU(0.2),
-        )             
-        
-        self.feat_8   = upBlock(filters, filters)
-        self.feat_16  = upBlock(filters, filters // 2)
-        self.feat_32  = upBlock(filters // 2, filters // 4)
-        
-        self.ch_conv = nn.Conv2d(filters // 4, 3, 3, 1, 1, bias=False)
-
-    def forward(self, z):
-        feat_4 = self.init(z)
-        feat_4 = torch.reshape(feat_4, (-1, self.filters, 4, 4))
-        feat_8 = self.feat_8(feat_4)
-        feat_16 = self.feat_16(feat_8)
-        feat_32 = self.feat_32(feat_16)
-
-        img = torch.tanh(self.ch_conv(feat_32))
-        return img
-    
+##########################
+## Bloques
 def upBlock(in_planes, out_planes):
     block = nn.Sequential(
         nn.Upsample(scale_factor=2, mode='nearest'),
@@ -82,6 +36,39 @@ class DownBlockComp(nn.Module):
     def forward(self, feat):
         return (self.main(feat) + self.direct(feat)) / 2
 
+
+############################
+## Modelos
+class Generator(nn.Module):
+    def __init__(self, filters=128, noise_dim=64):
+        super(Generator, self).__init__()
+        self.filters = filters
+        self.init = nn.Sequential(
+            nn.Linear(noise_dim, filters * 4 * 4),
+            nn.BatchNorm1d(filters * 4 * 4),
+            nn.LeakyReLU(0.2),
+        )             
+        
+        self.feat_8   = upBlock(filters, filters)
+        self.feat_16  = upBlock(filters, filters // 2)
+        self.feat_32  = upBlock(filters // 2, filters // 4)
+        
+        self.ch_conv = nn.Conv2d(filters // 4, 3, 3, 1, 1, bias=False)
+
+    def forward(self, z):
+        # print(f'z: {z.shape}')
+        try:
+            feat_4 = self.init(z)
+            feat_4 = torch.reshape(feat_4, (-1, self.filters, 4, 4))
+            feat_8 = self.feat_8(feat_4)
+            feat_16 = self.feat_16(feat_8)
+            feat_32 = self.feat_32(feat_16)
+
+            img = torch.tanh(self.ch_conv(feat_32))
+        except Exception as e:
+            raise e
+        return img
+    
 
 class Discriminator(nn.Module):
     def __init__(self, filters=128, noise_dim=64):
