@@ -83,4 +83,4 @@ def train(generator, discriminator, data_loader, noise_dim=64):
 
         if epoch % plot_inter == 0:
             print(f'Time for epoch {epoch} is {time.time()-start:.4f} sec G loss: {g_loss_avg:.4f} D loss: {d_loss_avg:.4f}')
-            plot_batch(generator, device)
+            plot_batch(generator, device, 128, 64)
