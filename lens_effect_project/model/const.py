@@ -16,4 +16,5 @@ PATH_OF_FIGURES = '/home/ariel/Documents/tesis-ia/lens_effect_project/lens-data/
 PATH_OF_TSV = '/home/ariel/Documents/tesis-ia/lens_effect_project/lens-data/utils/training_lens.tsv'
 
 PATH_OF_PREDOs_PC = '/home/pedroarturo/TF2/Pretrain/imagenes_no_clasificadas_desi'
-PATH_TO_SAVE = '/home/ariel/Documents/tesis-ia/lens_effect_project/data/newFigures'
+PATH_TO_SAVE_FIG = '/home/ariel/Documents/tesis-ia/lens_effect_project/data/newFigures'
+PATH_TO_SAVE_MODEL = '/home/ariel/Documents/tesis-ia/lens_effect_project/data/save_model'
