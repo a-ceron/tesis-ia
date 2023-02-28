@@ -1,5 +1,6 @@
 from torch import nn
 import torch 
+from model import dataAugment as da
 
 def upBlock(in_planes, out_planes):
     block = nn.Sequential(
@@ -77,6 +78,7 @@ class Discriminator(nn.Module):
         )
         
     def forward(self, x):
+        x = da.DiffAugment(x, 'color,translation,cutout')
         x = self.down_from_big(x)
         x = self.down_16(x)
         x = self.down_8(x)
