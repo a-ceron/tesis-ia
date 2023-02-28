@@ -67,7 +67,7 @@ class Lens2(Dataset):
     def __init__(self, path:str, transform=None) -> None:
         super(Lens2, self).__init__()
         self.path = path + '/'
-        self.path_elements = listdir(path)
+        self.path_elements = listdir(path)[:1000]
         self.length = len(self.path_elements)
         self.transform = transform
 

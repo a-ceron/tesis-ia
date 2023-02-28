@@ -19,9 +19,38 @@ def weights_init(model):
 def deprocess(img):
     return img * 127.5 + 127.5
 
+def pipline(real_img, device, generator, discriminator, loss_fn, g_optimizer, d_optimizer, noise_dim):
+    # Train the generator
+    real_img = real_img.to(device)
+    real_img = 2.0 * real_img - 1.0
+    
+    generator.zero_grad()
+    batch_size = real_img.shape[0]
+    noise = torch.randn(batch_size, noise_dim, device=device)
+    real_labels = torch.ones((batch_size, 1)).to(device)
+    fake_labels = torch.zeros((batch_size, 1)).to(device)
+    gen_img = generator(noise)
+    fake_out = discriminator(gen_img)
+
+    g_loss = loss_fn(fake_out, real_labels)
+    g_loss.backward()
+    g_optimizer.step()
+
+    # Train the discriminator
+    discriminator.zero_grad()
+    real_out = discriminator(real_img)
+    disc_real_loss = loss_fn(real_out, real_labels)
+    fake_out = discriminator(gen_img.detach())
+    disc_fake_loss = loss_fn(fake_out, fake_labels)
+
+    d_loss = (disc_real_loss + disc_fake_loss) / 2.0
+    d_loss.backward()
+    d_optimizer.step()
+
+    return g_loss, d_loss
 
 def train(generator, discriminator, data_loader, noise_dim=64):
-    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu'#'cuda:0' if torch.cuda.is_available() else 'cpu'
     g_lr = 0.0001
     d_lr = 0.0001
     beta1 = 0.5
@@ -47,32 +76,15 @@ def train(generator, discriminator, data_loader, noise_dim=64):
         d_loss_avg = 0.0
         start = time.time()
         for real_img, _ in data_loader:
-             # Train the generator
-            real_img = real_img.to(device)
-            real_img = 2.0 * real_img - 1.0
-            
-            generator.zero_grad()
-            batch_size = real_img.shape[0]
-            noise = torch.randn(batch_size, noise_dim, device=device)
-            real_labels = torch.ones((batch_size, 1)).to(device)
-            fake_labels = torch.zeros((batch_size, 1)).to(device)
-            gen_img = generator(noise)
-            fake_out = discriminator(gen_img)
-
-            g_loss = loss_fn(fake_out, real_labels)
-            g_loss.backward()
-            g_optimizer.step()
-
-            # Train the discriminator
-            discriminator.zero_grad()
-            real_out = discriminator(real_img)
-            disc_real_loss = loss_fn(real_out, real_labels)
-            fake_out = discriminator(gen_img.detach())
-            disc_fake_loss = loss_fn(fake_out, fake_labels)
-
-            d_loss = (disc_real_loss + disc_fake_loss) / 2.0
-            d_loss.backward()
-            d_optimizer.step()
+            g_loss, d_loss = pipline(real_img, 
+                                device, 
+                                generator, 
+                                discriminator, 
+                                loss_fn, 
+                                g_optimizer, 
+                                d_optimizer,
+                                noise_dim
+                                )
             
             # Metrics
             g_loss_avg += g_loss.item()
