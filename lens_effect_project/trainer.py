@@ -94,5 +94,7 @@ def train(generator, discriminator, data_loader, noise_dim=64):
         d_loss_avg /= len(data_loader)
 
         if epoch % plot_inter == 0:
+            torch.save(generator.state_dict(), f'generator_w_{epoch}.pth')
+            torch.save(discriminator.state_dict(), f'discriminator_w_{epoch}.pth')
             print(f'Time for epoch {epoch} is {time.time()-start:.4f} sec G loss: {g_loss_avg:.4f} D loss: {d_loss_avg:.4f}')
             plot_batch(generator, device, 128, 64)
