@@ -11,7 +11,8 @@ def read_data():
         transforms.Resize(32), # Solve a error for mismatch sizes
         transforms.ToTensor()
     ])
-    return dataManipulator.Lens2(const.PATH_OF_PREDOs_PC, transform)
+    #return dataManipulator.Lens2(const.PATH_OF_PREDOs_PC, transform)
+    return dataManipulator.Lens(const.PATH_OF_FIGURES, 'test', transform)
     
 
 def main():
