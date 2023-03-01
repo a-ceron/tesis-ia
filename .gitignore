@@ -136,3 +136,6 @@ TensorFlow/data/*
 pyTorch/data/*
 TensorFlow/imgs/*
 pyTorch/imgs/*
+lens_effect_project/lens-data/figures
+lens_effect_project/lens-data/training-runs
+lens_effect_project/data
