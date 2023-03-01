@@ -51,7 +51,7 @@ def pipline(real_img, device, generator, discriminator, loss_fn, g_optimizer, d_
     return g_loss, d_loss
 
 def train(generator, discriminator, data_loader, noise_dim=64):
-    device = 'cpu'#'cuda:0' if torch.cuda.is_available() else 'cpu'
+    device = 'cuda:1' if torch.cuda.is_available() else 'cpu'
     g_lr = 0.0001
     d_lr = 0.0001
     beta1 = 0.5

@@ -20,5 +20,5 @@ def plot_batch(generator, device, batch_size, noise_dim):
         plt.imshow(np.transpose(plot_batch[i], [1, 2, 0]).numpy().astype("uint8"))
         plt.axis('off')
     n = np.random.randint(1000)
-    plt.savefig(const.PATH_TO_SAVE+f'/{n}.png')
+    plt.savefig(const.PATH_TO_SAVE_FIG+f'/{n}.png')
     
