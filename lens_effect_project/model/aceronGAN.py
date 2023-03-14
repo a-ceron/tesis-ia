@@ -44,3 +44,7 @@ class Discriminator(nn.Module):
     """
     def __init__(self) -> None:
         super(Discriminator, self).__init__()
+
+
+# No va a haber mucho cambio con fresener inceptions distnace
+# Ver que no hay un colapso de moda al identificar 
