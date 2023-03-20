@@ -1,6 +1,6 @@
 from torchvision import transforms
 from model import dataManipulator, const, FastGAN
-import trainer
+import lens_effect_project.app.trainer as trainer
 
 from torch.utils.data import DataLoader
 
