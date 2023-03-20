@@ -56,9 +56,11 @@ class Lens(Dataset):
         meta_img = self.metadatos.iloc[idx]['path']
         name_img = self.metadatos.iloc[idx]['name']
         img = Image.open(meta_img).convert('RGB')
-        if self.transform:
-            img = self.transform(img)
-        return (img, name_img)
+        if img.verify():
+            if self.transform:
+                img = self.transform(img)
+            return (img, name_img)
+        return self.__getitem(idx + 1)
 
     def __len__(self) -> int:
         return self.length
@@ -67,16 +69,19 @@ class Lens2(Dataset):
     def __init__(self, path:str, transform=None) -> None:
         super(Lens2, self).__init__()
         self.path = path + '/'
-        self.path_elements = listdir(path)[:5000]
+        self.path_elements = listdir(path)
         self.length = len(self.path_elements)
         self.transform = transform
 
     def __getitem__(self, index) -> tuple:
         img = self.path_elements[index]
         img = Image.open(self.path + img).convert('RGB')
-        if self.transform:
-            img = self.transform(img)
-        return img, index
+        if img.verify():
+            if self.transform:
+                img = self.transform(img)
+            return (img)
+        return self.__getitem(index + 1)
+
 
     def __len__(self) -> int:
         return self.length
