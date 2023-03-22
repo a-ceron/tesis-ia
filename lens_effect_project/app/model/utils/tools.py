@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import torch
 import numpy as np
-from model import const
+import const
 
 def deprocess(img):
     return img * 127.5 + 127.5

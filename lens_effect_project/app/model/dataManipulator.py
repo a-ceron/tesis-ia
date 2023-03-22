@@ -69,19 +69,17 @@ class Lens2(Dataset):
     def __init__(self, path:str, transform=None) -> None:
         super(Lens2, self).__init__()
         self.path = path + '/'
-        self.path_elements = listdir(path)
+        self.path_elements = listdir(path)[:5000]
         self.length = len(self.path_elements)
         self.transform = transform
 
     def __getitem__(self, index) -> tuple:
         img = self.path_elements[index]
-        img = Image.open(self.path + img).convert('RGB')
-        if img.verify():
-            if self.transform:
-                img = self.transform(img)
-            return (img)
-        return self.__getitem(index + 1)
-
+        path = self.path + img
+        img = Image.open(path).convert('RGB')
+        if self.transform:
+            img = self.transform(img)
+        return img
 
     def __len__(self) -> int:
         return self.length

@@ -11,11 +11,12 @@ IIMAS, UNAM
 """
 import torch
 import torch.nn as nn
-from torchvision.transforms as transforms
+from torchvision import transforms
 from torch.utils.data import DataLoader
 from torch import optim
 
 import dataManipulator as dm
+from utils.tools import plot_batch
 
 import const
 
@@ -41,11 +42,11 @@ class Discriminator(nn.Module):
         self.model = nn.Sequential(
             nn.Linear(
                 in_features=img_dim,
-                out_features=128
+                out_features=512
             ), # Flat
             nn.LeakyReLU(0.1),  # activación para elementos mayores a cero, con una pendiente
             nn.Linear(
-                128,
+                512,
                 1
             ),  # Reducimos la dimensión a uno
             nn.Sigmoid()    # Tenemos una probabilidad entre cero y uno, se o no ser
@@ -60,11 +61,11 @@ class Generator(nn.Module):
         self.model = nn.Sequential(
             nn.Linear(
                 z_dim,  
-                256
+                512
             ),  # Aumentado de datos
             nn.LeakyReLU(0.1),  # Activación
             nn.Linear(
-                256,
+                512,
                 img_dim
             ), # Aumentado de datos    
             nn.Tanh()   # Genera valores entre -1 y 1
@@ -78,7 +79,7 @@ class Generator(nn.Module):
 # https://github.com/a-ceron/tesis-ia/issues/12
 def select_device(current:int=0):
     if torch.cuda.is_available():
-        device = f'cuda:{}'
+        device = "cuda:{}"
         devices = torch.cuda.device_count()
         print(device.format(devices))
         if devices > 1:
@@ -98,7 +99,7 @@ def select_device(current:int=0):
 
 def next_element(current:int, m_value:int):
     current += 1
-    if current > m_value:
+    if current >= m_value:
         return 0
     return current
     
@@ -117,22 +118,24 @@ def main():
     # Selección de un dispositivo
     device = select_device()
     lr = 3e-4
-    z_dim = 64
-    image_dim = 784 #Flat para una imagen de 28x28x1
+    z_dim = 256
+    image_dim = 65536 #Flat para una imagen de 28x28x1
     batch_size = 32
     num_epoch = 50
 
-    disc = Discriminator(image_dim)
-    gen = Generator(z_dim, image_dim)
+    disc = Discriminator(image_dim).to(device)
+    gen = Generator(z_dim, image_dim).to(device)
 
-    noise = torch.rand((batch_size, image_dim)) #matriz de 32 x 784
+    noise = torch.rand((batch_size, z_dim)).to(device) #matriz de 32 x 784
                                                 # en este caso veamoslo como
                                                 # una lista de vectores.
                                                 # 32 vectores de 784 elementos
 
     transform  = transforms.Compose(
-        transform.ToTensor(),
-        transform.Normalize((0.5,), (0.5,)),
+        [
+            transforms.ToTensor(),
+            transforms.Resize((256,256))
+        ]
     )
 
     dataset = dm.Lens2(const.PATH_OF_PREDOs_PC, transform)
@@ -157,17 +160,17 @@ def main():
     # Entrenamiento
     step = 0
     for epoch in range(num_epoch):
-        for batch_idx, (real, _) in enumerate(dataloader):
-            real = real.view(-1, image_dim) # Acá andamos haciendo un flat a todo
+        for batch_idx, real in enumerate(dataloader):
+            real = real.view(-1, image_dim).to(device) # Acá andamos haciendo un flat a todo
             batch_size = real.shape[0]  ## ???
 
             ## Train discriminator
-            z_noise = torch.rand((batch_size, z_dim))
+            z_noise = torch.rand((batch_size, z_dim)).to(device)
             fake = gen(z_noise)
 
             disc_real = disc(real).view(-1) # Flat everithing
             lossD_real = criterion(disc_real, torch.ones_like(disc_real))
-            disc_fake = disc(fake.detach).view(-1)
+            disc_fake = disc(fake.detach()).view(-1)
             lossD_fake = criterion(disc_fake, torch.zeros_like(disc_fake))
             lossD = (lossD_real + lossD_fake) / 2
 
@@ -179,7 +182,7 @@ def main():
             output = disc(fake).view(-1)
             lossG = criterion(output, torch.ones_like(output))
             gen.zero_grad()
-            lossG.backwards()
+            lossG.backward()
             optimizer_gen.step()
 
 
@@ -187,3 +190,12 @@ def main():
                 print(
                     f" Epoca: {epoch/num_epoch}, Loss Generator: {lossG:.4f}, Loss Discriminator: {lossD:.4f}"
                 )
+    torch.save(gen.state_dict(),  const.PATH_TO_SAVE_MODEL + f'/generator_w_{epoch}.pth')
+    torch.save(disc.state_dict(), const.PATH_TO_SAVE_MODEL + f'/discriminator_w_{epoch}.pth')
+                    
+
+
+
+                
+if __name__ == '__main__':
+    main()
