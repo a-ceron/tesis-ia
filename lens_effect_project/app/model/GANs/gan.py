@@ -15,7 +15,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from torch import optim
 
-import dataManipulator as dm
+import lens_effect_project.app.model.data.dataManipulator as dm
 from utils.tools import plot_batch
 
 import const
