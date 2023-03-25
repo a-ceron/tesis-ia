@@ -1,6 +1,6 @@
 import unittest
 
-from app.model.gan import next_element
+from lens_effect_project.app.model.GANs.gan import next_element
 
 class GANTest(unittest.TestCase):
     def next_element_is_one(self):
