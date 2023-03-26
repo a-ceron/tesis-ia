@@ -28,11 +28,12 @@ class CNNTrainer(Trainer):
     padding = 1
     kernel_size = 3
 
-    def __init__(self, num_classes, dataloader) -> None:
+    def __init__(self, classes, dataloader) -> None:
         super().__init__()
         self._name = self._name + "CNNTrainer"
-        self.num_classes = num_classes
         self.dataloader = dataloader
+        self.classes = classes
+        self.num_classes = len(classes)
 
     def train(self):
         model = ariCNN(self.num_classes)

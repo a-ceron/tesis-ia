@@ -122,7 +122,24 @@ def next_element(current:int, m_value:int):
     return current
 
 
-def spatial_dim(H, W, D, R, Z, S)-> int:
+def spatial_dim(H, W, D, R, S, Z,)-> int:
+    """_summary_
+
+    :param H: Altura
+    :type H: _type_
+    :param W: Ancho
+    :type W: _type_
+    :param D: Profundidad
+    :type D: _type_
+    :param R: Receptive Field size
+    :type R: _type_
+    :param S: Stride
+    :type S: _type_
+    :param Z: Zero padding
+    :type Z: _type_
+    :return: _description_
+    :rtype: int
+    """
     V = H * W * D
     num = (V - R) + 2*Z
     den = S + 1

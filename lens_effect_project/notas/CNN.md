@@ -20,3 +20,12 @@ Las redes neuronales artificiaes son procesos computacionales fuertemente inspir
 ![](Figuras/ann.jpg)
 
 Al tener la capacidad de poseer multiples capas ocultas es normal llamarles apredizaje profundo. LAs redes convolucionales son un análogo a las redes ANN tradicionales en el sentido de que ambas arquitecturas contiene neuronas que serán auto-optimizadas a través del entrenamiento. La única diferencia a resaltar es que las CNN son usadas principalmente en el campo de la detección de patrones en las imágenes. 
+
+## Arquitectura
+La primera parte de la arquitectura comprimirá la imágen. Esto tal vez sea una de las principales diferencias entre arquitecturas, ya que la CNN contiene neuronas organizadas en tres dimensiones, las espaciales y la produnfidad. Al final del algoritmo se devuelve un vector 1x1xn, con n el número de clases.
+
+Para construir una CNN hacen falta tres componentes:
+- Capas convolucionales.
+- Capas de pooling.
+- Capas fully connected.
+
