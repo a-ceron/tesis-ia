@@ -1,7 +1,7 @@
 """
 ###########################################
 Esta es una implementación de una arquitecura
-CNN
+ANN
 
 
 
@@ -12,4 +12,6 @@ Bajo la tutoria del Dr. Gibran Fuentes
 IIMAS, UNAM
 ###########################################
 """
+
+from torch import nn
 
