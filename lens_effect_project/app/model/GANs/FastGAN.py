@@ -1,6 +1,6 @@
 from torch import nn
 import torch 
-from lens_effect_project.app.model.data import dataAugment as da
+from model.data import dataAugment as da
 
 def upBlock(in_planes, out_planes):
     block = nn.Sequential(

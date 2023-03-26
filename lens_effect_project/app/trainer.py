@@ -2,7 +2,7 @@ from torch import nn
 import torch
 import time
 from model.utils.tools import plot_batch
-from model import const
+from model.utils import const
 from torch import optim
 
 
