@@ -24,11 +24,10 @@ def train_and_test_cifar10():
         train_dataloader,
         device
     )
-    state_model = trainer.train()
+    trainer.train()
     trainer.test(test_dataloader)
 
-    torch.save(
-        state_model,
+    trainer.save(
         const.PATH_TO_SAVE_MODEL + 'cifar10_model.pth'
     )
 
@@ -46,8 +45,15 @@ def train_and_test_simple_gan():
 
     device = tools.select_device()
 
-    trainer = trainers.SimpleGANTrainer(None, device)
-    print(trainer)
+    trainer = trainers.SimpleGANTrainer(train_dataloader, device)
+    trainer.train()
+
+    trainer.test(test_dataloader)
+
+    trainer.save(
+        const.PATH_TO_SAVE_MODEL + 'simple_gan_model.pth'
+    )
+    
 
 def main():
     train_and_test_simple_gan()
