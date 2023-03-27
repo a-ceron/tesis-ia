@@ -1,28 +1,56 @@
 from torchvision import transforms
-from lens_effect_project.app.model.GANs import FastGAN
-from lens_effect_project.app.model.data import dataManipulator
-from model import const
-import lens_effect_project.app.trainer as trainer
 
-from torch.utils.data import DataLoader
+from model.data.dataLoaders import DataLoaderFactory, DataLoaderLabels
+from model.utils import const, tools
+from model import trainers
 
-def read_data():
-    """Regresa un dataloader
-    """
+def train_and_test_cifar10():
     transform = transforms.Compose([
-        transforms.Resize(32), # Solve a error for mismatch sizes
-        transforms.ToTensor()
+        transforms.Resize((32, 32)),
+        transforms.ToTensor(),
     ])
-    #return dataManipulator.Lens2(const.PATH_OF_PREDOs_PC, transform)
-    return dataManipulator.Lens(const.PATH_OF_FIGURES, 'test', transform)
-    
+    train_dataloader, test_dataloader = DataLoaderFactory.get_cifar10(
+        const.PATH_TO_SAVE_MODEL,
+        True,
+        const.BATCH_SIZE_32,
+        transform
+    )
+    classes = DataLoaderLabels.cifar10
+
+    device = tools.select_device()
+
+    trainer = trainers.CNNTrainer(
+        classes, 
+        train_dataloader,
+        device
+    )
+    state_model = trainer.train()
+    trainer.test(test_dataloader)
+
+    torch.save(
+        state_model,
+        const.PATH_TO_SAVE_MODEL + 'cifar10_model.pth'
+    )
+
+
+def train_and_test_simple_gan():
+    transform = transforms.Compose([
+        transforms.Resize((32, 32)),
+        transforms.ToTensor(),
+    ])
+    train_dataloader, test_dataloader = DataLoaderFactory.get_galaxy(
+        const.PATH_OF_PREDOs_PC,
+        transform,
+        const.BATCH_SIZE_32,
+    )
+
+    device = tools.select_device()
+
+    trainer = trainers.SimpleGANTrainer(None, device)
+    print(trainer)
 
 def main():
-    dataloader = DataLoader(read_data(), const.BATCH_SIZE_128,
-                            shuffle=True, num_workers=4)
-    generator = FastGAN.Generator()
-    discriminator = FastGAN.Discriminator()
-    trainer.train(generator, discriminator, dataloader)
+    train_and_test_simple_gan()
 
 if __name__ == '__main__':
     try:

@@ -18,7 +18,7 @@ from torch import optim
 import lens_effect_project.app.model.data.dataManipulator as dm
 from utils.tools import plot_batch
 
-import const
+import lens_effect_project.app.model.utils.const as const
 
 
 ### Primera parte

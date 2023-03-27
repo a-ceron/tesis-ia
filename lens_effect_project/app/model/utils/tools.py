@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import torch
 import numpy as np
-import const
 
 
 import torch
@@ -57,3 +56,91 @@ def load_checkpoint(checkpoint, gen, disc):
     print("=> Loading checkpoint")
     gen.load_state_dict(checkpoint['gen'])
     disc.load_state_dict(checkpoint['disc'])
+
+
+# Vamos a solucionat el ticket
+# https://github.com/a-ceron/tesis-ia/issues/12
+
+    
+
+
+#################
+# Parte 2
+#################
+"""
+Vamos a mejorar las herramientas para que puedan ser usadas
+en todos los modelos o clases que se creen en el futuro.
+"""
+
+def get_figure(labels, images):
+    item = torch.randint(
+        len(images),
+        size=(1,)
+    ).item()
+    return labels[item], images[item]
+
+
+# Visualización de datos
+def plot_dataloader(data, path, name, label_map, n_images=3):
+    batch_data, batch_labels = next(iter(data))
+    cols, rows = n_images, n_images
+    n_items = cols * rows + 1
+
+    figure = plt.figure(figsize=(8, 8))
+    for item in range(1, n_items):
+        figure.add_subplot(rows, cols, item)
+        label, img = get_figure(batch_labels, batch_data)
+        plt.title(label_map[int(label)])
+        plt.imshow(img.permute(1, 2, 0).squeeze())
+        plt.axis('off')
+    plt.savefig(path + name)
+
+
+# Selección del dispositivo a usar
+def select_device(current:int=0):
+    if torch.cuda.is_available():
+        device = "cuda:{}"
+        devices = torch.cuda.device_count()
+        if devices > 1:
+            c_device = torch.cuda.current_device()
+            if current == c_device:
+                return torch.device(
+                    device.format(
+                        next_element(
+                            c_device, devices
+                        )
+                    )
+                )
+        elif devices == 0:
+            return torch.cuda.device(devices)
+    return torch.device('cpu')
+
+def next_element(current:int, m_value:int):
+    current += 1
+    if current >= m_value:
+        return 0
+    return current
+
+
+def spatial_dim(H, W, D, R, S, Z,)-> int:
+    """_summary_
+
+    :param H: Altura
+    :type H: _type_
+    :param W: Ancho
+    :type W: _type_
+    :param D: Profundidad
+    :type D: _type_
+    :param R: Receptive Field size
+    :type R: _type_
+    :param S: Stride
+    :type S: _type_
+    :param Z: Zero padding
+    :type Z: _type_
+    :return: _description_
+    :rtype: int
+    """
+    V = H * W * D
+    num = (V - R) + 2*Z
+    den = S + 1
+    return num / den
