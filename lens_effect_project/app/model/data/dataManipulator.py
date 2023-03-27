@@ -9,7 +9,7 @@ Bajo la tutoria del Dr. Gibran Fuentes
 IIMAS, UNAM
 ###########################################
 """
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, random_split
 from pandas import read_csv
 from PIL import Image
 from os import listdir
@@ -77,9 +77,11 @@ class Lens2(Dataset):
         img = self.path_elements[index]
         path = self.path + img
         img = Image.open(path).convert('RGB')
-        if self.transform:
-            img = self.transform(img)
-        return img
+        if img.verify():
+            if self.transform:
+                img = self.transform(img)
+            return img
+        return self.path_elements.pop(index)
 
     def __len__(self) -> int:
         return self.length

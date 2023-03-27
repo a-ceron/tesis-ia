@@ -12,8 +12,10 @@ IIMAS, UNAM
 """
 
 from torchvision.datasets import CIFAR10, STL10
-
 from torch.utils.data import DataLoader
+
+from model.data import dataManipulator
+
 
 ####################
 class DataLoaderLabels:
@@ -78,11 +80,30 @@ class DataLoaderFactory:
         )
         return train, test
 
-    def get_galaxy():
-        pass
+    def get_galaxy(path, transform, batch_size, shuffle=True, train_split=0.2):
+        dataset = get_galaxy_dataset(path, transform)
+
+        train_len = int(len(dataset)*train_split)
+        train, test = dataManipulator.random_split(
+            dataset,
+            [train_len, len(dataset)-train_len]
+        )
+        
+        train_dataloader = DataLoader(
+            train,
+            batch_size=batch_size,
+            shuffle=shuffle
+        )
+        test_dataloader = DataLoader(
+            test,
+            batch_size=batch_size,
+            shuffle=shuffle
+        )
+        return train_dataloader, test_dataloader
 
     def get_galaxy_lens():
         pass
+
 ####################
 def get_cifar10_dataset(root, train, download, transform):
     return CIFAR10(
@@ -98,6 +119,18 @@ def get_cifar10_dataloader(root, train, download, batch_size, transform):
         batch_size=batch_size,
         shuffle=True
     )
+
+def get_galaxy_dataloader(path, transform, batch_size, shuffle=True):
+    return DataLoader(
+        get_galaxy_dataset(path, transform),
+        batch_size=batch_size,
+        shuffle=shuffle
+    )
+
+
+def get_galaxy_dataset(path, transform):
+    return dataManipulator.Lens2(path, transform)
+    
 
 def get_stl10_dataset(root, train, download, transform):
     return STL10(
