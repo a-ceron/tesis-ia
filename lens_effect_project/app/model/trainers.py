@@ -24,10 +24,16 @@ import torch
 class Trainer:
     def __init__(self) -> None:
         self._name = "Trainer: "
+        self.model = None
+    def __str__(self) -> str:
+        return self._name
     def train(self): return self
     def test(self): return self
-    def save(self): return self
-    def resume(self): return self
+    def save(self):
+        if self.model is not None:
+            torch.save(self.model.state_dict(), const.PATH_TO_SAVE_MODEL)
+        return False
+    
 
 class CNNTrainer(Trainer):
     stride = 1
@@ -88,10 +94,11 @@ class CNNTrainer(Trainer):
             'test_CNN_figure_st.png',
             self.classes
         )
+    
 
-    def save(self, path):
-        torch.save(self.model.state_dict(), path)
-        return self 
-
-    def __str__(self):
-        return self._name
+class SimpleGANTrainer(Trainer):
+    def __init__(self, dataloader, device) -> None:
+        super().__init__()
+        self._name = self._name + "SimpleGANTrainer"
+        self.dataloader = dataloader
+        self.device = device

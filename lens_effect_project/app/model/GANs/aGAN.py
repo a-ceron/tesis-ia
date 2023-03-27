@@ -165,5 +165,3 @@ def test():
     out = gen(z)
     assert out.shape == (N, in_channels, H, W)
     print(f"Expected {x.shape}, got {out.shape}")
-
-test()

@@ -77,6 +77,12 @@ class DataLoaderFactory:
             transform
         )
         return train, test
+
+    def get_galaxy():
+        pass
+
+    def get_galaxy_lens():
+        pass
 ####################
 def get_cifar10_dataset(root, train, download, transform):
     return CIFAR10(

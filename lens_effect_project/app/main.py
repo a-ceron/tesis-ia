@@ -33,8 +33,25 @@ def train_and_test_cifar10():
     )
 
 
+def train_and_test_simple_gan():
+    # transform = transforms.Compose([
+    #     transforms.Resize((32, 32)),
+    #     transforms.ToTensor(),
+    # ])
+    # train_dataloader, test_dataloader = DataLoaderFactory.get_cifar10(
+    #     const.PATH_TO_SAVE_MODEL,
+    #     True,
+    #     const.BATCH_SIZE_32,
+    #     transform
+    # )
+    device = tools.select_device()
+
+
+    trainer = trainers.SimpleGANTrainer(None, device)
+    print(trainer)
+
 def main():
-    train_and_test_cifar10()
+    train_and_test_simple_gan()
 
 if __name__ == '__main__':
     try:
