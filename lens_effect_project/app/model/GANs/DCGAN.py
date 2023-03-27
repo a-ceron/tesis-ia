@@ -3,22 +3,6 @@
 Esta es una implementación de un modelo 
 DCGAN
 
-Archutecture guidelines for stable deep 
-convolutional GANs
-- Replace any pooling layers with strided 
-convolutions (disciminator) and fractional
-stride convolution
-- Use batchnorm in both the generator and 
-the discriminator
--Remove fully connected hidden layers for 
-deeper architectures.
-- Use ReLU activation in generator for all
-layers except for the output, which uses 
-Tanh.
-- Use LeakyReLU activation in the discriminator
-for all layers
-
-
 autor: Ariel Cerón González
 fecha: Marzo 14, 2023
 

@@ -81,7 +81,7 @@ def get_figure(labels, images):
 
 
 # Visualización de datos
-def plot_dataloader(data, path, name, n_images=3):
+def plot_dataloader(data, path, name, label_map, n_images=3):
     batch_data, batch_labels = next(iter(data))
     cols, rows = n_images, n_images
     n_items = cols * rows + 1
@@ -90,7 +90,7 @@ def plot_dataloader(data, path, name, n_images=3):
     for item in range(1, n_items):
         figure.add_subplot(rows, cols, item)
         label, img = get_figure(batch_labels, batch_data)
-        plt.title(label)
+        plt.title(label_map[int(label)])
         plt.imshow(img.permute(1, 2, 0).squeeze())
         plt.axis('off')
     plt.savefig(path + name)

@@ -12,7 +12,7 @@ IIMAS, UNAM
 """
 
 from torchvision.datasets import CIFAR10, STL10
-from torchvision.transforms import ToTensor
+
 from torch.utils.data import DataLoader
 
 ####################
@@ -42,27 +42,68 @@ class DataLoaderLabels:
         9: 'truck'
     }
 
+class DataLoaderFactory:
+    def get_cifar10(root, download, batch_size, transform):
+        test = get_cifar10_dataloader(
+            root, 
+            False,
+            download,
+            batch_size,
+            transform
+        )
+        train = get_cifar10_dataloader(
+            root, 
+            True,
+            download,
+            batch_size,
+            transform
+        )
+        return train, test
+    
 
+    def get_stl10(root, download, batch_size, transform):
+        test = get_stl10_dataloader(
+            root, 
+            False,
+            download,
+            batch_size,
+            transform
+        )
+        train = get_stl10_dataloader(
+            root, 
+            True,
+            download,
+            batch_size,
+            transform
+        )
+        return train, test
 ####################
-def get_cifar10_dataset(root, train, download):
+def get_cifar10_dataset(root, train, download, transform):
     return CIFAR10(
         root=root,
         train=train,
         download=download,
-        transform=ToTensor()
+        transform=transform
     )
 
-def get_cifar10_dataloader(root, train, download, batch_size):
+def get_cifar10_dataloader(root, train, download, batch_size, transform):
     return DataLoader(
-        get_cifar10_dataset(root, train, download),
+        get_cifar10_dataset(root, train, download, transform),
         batch_size=batch_size,
         shuffle=True
     )
 
-def get_stl10_dataset(root, train, download):
+def get_stl10_dataset(root, train, download, transform):
     return STL10(
         root=root,
         split='train' if train else 'test',
         download=download,
-        transform=ToTensor()
+        transform=transform
+    )
+
+def get_stl10_dataloader(root, train, download, batch_size, transform):
+    return DataLoader(
+        get_stl10_dataset(root, train, download, transform),
+        batch_size=batch_size,
+        shuffle=True
     )
