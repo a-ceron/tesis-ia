@@ -17,6 +17,7 @@ from torch import nn
 
 from model.CNNs.aCNN import ariCNN
 from model.GANs.aGAN import ariDiscriminator, ariGenerator
+
 from model.utils import tools, const
 
 import torch
@@ -30,9 +31,9 @@ class Trainer:
         return self._name
     def train(self): return self
     def test(self): return self
-    def save(self):
+    def save(self, name):
         if self.model is not None:
-            torch.save(self.model.state_dict(), const.PATH_TO_SAVE_MODEL)
+            torch.save(self.model.state_dict(), const.PATH_TO_SAVE_MODEL + name)
         return False
     
 
@@ -116,14 +117,14 @@ class SimpleGANTrainer(Trainer):
 
     def _propagator(self, imgs, batch_size, label):
         y_true = torch.full([batch_size], label, dtype=torch.float, device=self.device)
-        y_pred = self.dis(imgs.to(self.device)).view(-1)
+        y_pred = self.dis(imgs.to(self.device), True).view(-1)
 
         loss = F.binary_cross_entropy(y_pred, y_true)
         loss.backward()
 
         return loss.item()
 
-    def train(self, num_epochs=1, k=1, transfer=False):
+    def train(self, num_epochs=10, transfer=False):
         """Se repinte por el número de épocas
         y por cada época se repite por cada batch
 

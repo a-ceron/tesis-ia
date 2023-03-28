@@ -27,6 +27,8 @@ IIMAS, UNAM
 """
 from torch import nn
 
+from model.data.dataAugment import DiffAugment
+
 class ariDiscriminator(nn.Module):
     """Regresa la probabilidad de que una imagen sea real o falsa"""
     def __init__(self, channels_img):
@@ -83,7 +85,10 @@ class ariDiscriminator(nn.Module):
             nn.Sigmoid()
         )
 
-    def forward(self, X):
+    def forward(self, X, augment=False):
+        if augment:
+            out = DiffAugment(X, 'color,translation,cutout')
+            return self.model(out)
         return self.model(X)
 
 

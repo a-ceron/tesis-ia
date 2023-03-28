@@ -43,7 +43,7 @@ def train_and_test_simple_gan():
         const.PATH_OF_PREDOs_PC,
         transform,
         const.BATCH_SIZE_128,
-        
+
     )
 
     device = tools.select_device()
@@ -52,9 +52,8 @@ def train_and_test_simple_gan():
     trainer.train()
 
     trainer.save(
-        const.PATH_TO_SAVE_MODEL + 'simple_gan_model.pth'
+        'simple_gan_model.pth'
     )
-
 
 
 def main():

@@ -14,7 +14,13 @@ def deprocess(img):
 def plot_batch(generator, device, batch_size, noise_dim):
     n_images = 64
     generator.eval()
-    noise = torch.randn(batch_size, noise_dim, device=device)
+    noise = torch.randn(
+        batch_size,
+        noise_dim,
+        1,
+        1,
+        device=device
+    )
 
     gen_batch = generator(noise).detach().cpu()
     plt.figure(figsize=(16, 4))
