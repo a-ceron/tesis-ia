@@ -6,6 +6,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 
+from model.utils import const
+
 def deprocess(img):
     return img * 127.5 + 127.5
 

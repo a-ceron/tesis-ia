@@ -4,6 +4,8 @@ from model.data.dataLoaders import DataLoaderFactory, DataLoaderLabels
 from model.utils import const, tools
 from model import trainers
 
+import matplotlib.pyplot as plt
+
 def train_and_test_cifar10():
     transform = transforms.Compose([
         transforms.Resize((32, 32)),
@@ -40,7 +42,8 @@ def train_and_test_simple_gan():
     train_dataloader = DataLoaderFactory.get_galaxy(
         const.PATH_OF_PREDOs_PC,
         transform,
-        const.BATCH_SIZE_32,
+        const.BATCH_SIZE_128,
+        
     )
 
     device = tools.select_device()
@@ -48,11 +51,11 @@ def train_and_test_simple_gan():
     trainer = trainers.SimpleGANTrainer(train_dataloader, device)
     trainer.train()
 
-    
     trainer.save(
         const.PATH_TO_SAVE_MODEL + 'simple_gan_model.pth'
     )
-    
+
+
 
 def main():
     train_and_test_simple_gan()

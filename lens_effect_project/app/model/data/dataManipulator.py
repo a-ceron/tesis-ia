@@ -66,10 +66,12 @@ class Lens(Dataset):
         return self.length
 
 class Lens2(Dataset):
-    def __init__(self, path:str, transform=None) -> None:
+    def __init__(self, path:str, transform=None, max:int=-1) -> None:
         super(Lens2, self).__init__()
         self.path = path + '/'
         self.path_elements = listdir(path)
+        if max > 0:
+            self.path_elements = self.path_elements[:max]
         self.length = len(self.path_elements)
         self.transform = transform
 

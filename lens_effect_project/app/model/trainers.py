@@ -194,7 +194,13 @@ class SimpleGANTrainer(Trainer):
                 optim_gen.step()
             print(f"Epoch [{epoch+1}/{num_epochs}], Loss D: {dis_loss:.4f}, Loss G: {gen_loss:.4f}")
 
-        return fake_imgs.detach()
+        tools.plot_batch(
+            self.gen,
+            self.device,
+            real_imgs.shape[0],
+            z_dim
+        )
+
 
     def test(self, test_loader):
         raise NotImplementedError
