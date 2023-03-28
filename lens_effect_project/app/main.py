@@ -34,10 +34,10 @@ def train_and_test_cifar10():
 
 def train_and_test_simple_gan():
     transform = transforms.Compose([
-        transforms.Resize((32, 32)),
+        transforms.Resize((64, 64)),
         transforms.ToTensor(),
     ])
-    train_dataloader, test_dataloader = DataLoaderFactory.get_galaxy(
+    train_dataloader = DataLoaderFactory.get_galaxy(
         const.PATH_OF_PREDOs_PC,
         transform,
         const.BATCH_SIZE_32,
@@ -48,8 +48,7 @@ def train_and_test_simple_gan():
     trainer = trainers.SimpleGANTrainer(train_dataloader, device)
     trainer.train()
 
-    trainer.test(test_dataloader)
-
+    
     trainer.save(
         const.PATH_TO_SAVE_MODEL + 'simple_gan_model.pth'
     )

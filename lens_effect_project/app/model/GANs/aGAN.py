@@ -28,6 +28,7 @@ IIMAS, UNAM
 from torch import nn
 
 class ariDiscriminator(nn.Module):
+    """Regresa la probabilidad de que una imagen sea real o falsa"""
     def __init__(self, channels_img):
         super(ariDiscriminator, self).__init__()
         self.model = nn.Sequential(
@@ -87,7 +88,7 @@ class ariDiscriminator(nn.Module):
 
 
 class ariGenerator(nn.Module):
-    """Regresa una imagen
+    """Genera una imagen a partir de un vector de ruido
     """
     def __init__(self, z_dim):
         super(ariGenerator, self).__init__()

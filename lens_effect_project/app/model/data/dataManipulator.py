@@ -77,11 +77,9 @@ class Lens2(Dataset):
         img = self.path_elements[index]
         path = self.path + img
         img = Image.open(path).convert('RGB')
-        if img.verify():
-            if self.transform:
-                img = self.transform(img)
-            return img
-        return self.path_elements.pop(index)
+        if self.transform:
+            img = self.transform(img)
+        return img
 
     def __len__(self) -> int:
         return self.length
