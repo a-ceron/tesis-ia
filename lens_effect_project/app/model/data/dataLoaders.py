@@ -136,7 +136,7 @@ def get_galaxy_dataloader(path, transform, batch_size, shuffle=True):
 
 
 def get_galaxy_dataset(path, transform):
-    return dataManipulator.Lens2(path, transform, 1000)
+    return dataManipulator.Lens2(path, transform, 10000)
     
 
 def get_stl10_dataset(root, train, download, transform):

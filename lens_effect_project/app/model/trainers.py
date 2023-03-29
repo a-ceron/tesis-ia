@@ -31,10 +31,7 @@ class Trainer:
         return self._name
     def train(self): return self
     def test(self): return self
-    def save(self, name):
-        if self.model is not None:
-            torch.save(self.model.state_dict(), const.PATH_TO_SAVE_MODEL + name)
-        return False
+    def save(self): return self
     
 
 class CNNTrainer(Trainer):
@@ -96,6 +93,9 @@ class CNNTrainer(Trainer):
             'test_CNN_figure_st.png',
             self.classes
         )
+
+    def save(self, name):
+        torch.save(self.model.state_dict(), const.PATH_TO_SAVE_MODEL + name)
     
 
 class SimpleGANTrainer(Trainer):
@@ -124,7 +124,7 @@ class SimpleGANTrainer(Trainer):
 
         return loss.item()
 
-    def train(self, num_epochs=10, transfer=False):
+    def train(self, p_disc=None, p_gen=None, num_epochs=10):
         """Se repinte por el número de épocas
         y por cada época se repite por cada batch
 
@@ -132,10 +132,6 @@ class SimpleGANTrainer(Trainer):
         lantente y los pasamos por el modelo generador
 
         """
-        if transfer:
-            self.gen.apply(tools.weights_init)
-            self.dis.apply(tools.weights_init)
-
         z_dim = 100
         img_channels = 3
 
@@ -145,6 +141,9 @@ class SimpleGANTrainer(Trainer):
         self.gen = ariGenerator(z_dim).to(self.device)
         self.dis = ariDiscriminator(img_channels).to(self.device)
         
+        tools.initialize_weights(self.dis, p_disc)
+        tools.initialize_weights(self.gen, p_gen)
+
         optim_gen = torch.optim.Adam(
             self.gen.parameters(),
             lr=0.0002,
@@ -195,14 +194,18 @@ class SimpleGANTrainer(Trainer):
                 optim_gen.step()
             print(f"Epoch [{epoch+1}/{num_epochs}], Loss D: {dis_loss:.4f}, Loss G: {gen_loss:.4f}")
 
+
         tools.plot_batch(
             self.gen,
             self.device,
             real_imgs.shape[0],
             z_dim
         )
+    
+    def save(self, name):
+        torch.save(self.gen.state_dict(), const.PATH_TO_SAVE_MODEL  + '_gen_' + name)
+        torch.save(self.dis.state_dict(), const.PATH_TO_SAVE_MODEL  + '_dis_' + name)
 
-
-    def test(self, test_loader):
+    def test(self):
         raise NotImplementedError
         

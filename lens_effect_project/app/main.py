@@ -4,8 +4,6 @@ from model.data.dataLoaders import DataLoaderFactory, DataLoaderLabels
 from model.utils import const, tools
 from model import trainers
 
-import matplotlib.pyplot as plt
-
 def train_and_test_cifar10():
     transform = transforms.Compose([
         transforms.Resize((32, 32)),
@@ -42,13 +40,16 @@ def train_and_test_simple_gan():
     train_dataloader = DataLoaderFactory.get_galaxy(
         const.PATH_OF_PREDOs_PC,
         transform,
-        const.BATCH_SIZE_128,
-
+        const.BATCH_SIZE_128
     )
 
     device = tools.select_device()
 
     trainer = trainers.SimpleGANTrainer(train_dataloader, device)
+
+    # p_disc = '/home/ariel/Documents/tesis-ia/lens_effect_project/app/data/save_model/save_modelsimple_gan_model_dis'
+    # p_gen = '/home/ariel/Documents/tesis-ia/lens_effect_project/app/data/save_model/save_modelsimple_gan_model_gen'
+    # trainer.train(p_disc, p_gen, 1)
     trainer.train()
 
     trainer.save(
@@ -58,6 +59,7 @@ def train_and_test_simple_gan():
 
 def main():
     train_and_test_simple_gan()
+    
 
 if __name__ == '__main__':
     try:

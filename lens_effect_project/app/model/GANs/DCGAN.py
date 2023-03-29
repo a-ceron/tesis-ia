@@ -13,6 +13,7 @@ IIMAS, UNAM
 import torch
 import torch.nn as nn
 
+from model.utils import tools
 
 class Discriminator(nn.Module):
     def __init__(self, channels_img, features_d):
@@ -82,24 +83,18 @@ class Generator(nn.Module):
         return self.net(x)
 
 
-def initialize_weights(model):
-    # Initializes weights according to the DCGAN paper
-    for m in model.modules():
-        if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d, nn.BatchNorm2d)):
-            nn.init.normal_(m.weight.data, 0.0, 0.02)
-
 
 def test():
     N, in_channels, H, W = 8, 3, 64, 64
     z_dim = 100
     x = torch.rand((N, in_channels, H, W))
     disc = Discriminator(in_channels, 8)
-    initialize_weights(disc)
+    tools.initialize_weights(disc)
 
     assert disc(x).shape == (N, 1, 1, 1)
 
     gen = Generator(z_dim, in_channels, 8)
-    initialize_weights(gen)
+    tools.initialize_weights(gen)
     z = torch.randn((N, z_dim, 1, 1))
     assert gen(z).shape == (N, in_channels, H, W)
 
