@@ -27,7 +27,11 @@ IIMAS, UNAM
 """
 from torch import nn
 
+from model.data.dataAugment import DiffAugment
+from model.utils.tools import initialize_weights
+
 class ariDiscriminator(nn.Module):
+    """Regresa la probabilidad de que una imagen sea real o falsa"""
     def __init__(self, channels_img):
         super(ariDiscriminator, self).__init__()
         self.model = nn.Sequential(
@@ -82,12 +86,15 @@ class ariDiscriminator(nn.Module):
             nn.Sigmoid()
         )
 
-    def forward(self, X):
+    def forward(self, X, augment=False):
+        if augment:
+            out = DiffAugment(X, 'color,translation,cutout')
+            return self.model(out)
         return self.model(X)
 
 
 class ariGenerator(nn.Module):
-    """Regresa una imagen
+    """Genera una imagen a partir de un vector de ruido
     """
     def __init__(self, z_dim):
         super(ariGenerator, self).__init__()
@@ -156,12 +163,16 @@ def test():
     x = torch.rand((N, in_channels, H, W))
     z = torch.randn((N, z_dim, 1, 1))
 
+    p_disc = '/home/ariel/Documents/tesis-ia/lens_effect_project/app/data/save_model/save_modelsimple_gan_model_dis'
     disc = ariDiscriminator(in_channels)
+    initialize_weights(disc, p_disc)
     out = disc(x)
     assert out.shape == (N, 1, 1, 1)
     print(f"Expected {x.shape}, got {out.shape}")
 
+    p_gen = '/home/ariel/Documents/tesis-ia/lens_effect_project/app/data/save_model/save_modelsimple_gan_model_gen'
     gen = ariGenerator(z_dim)
+    initialize_weights(gen, p_gen)
     out = gen(z)
     assert out.shape == (N, in_channels, H, W)
     print(f"Expected {x.shape}, got {out.shape}")

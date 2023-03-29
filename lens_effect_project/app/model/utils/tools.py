@@ -6,13 +6,21 @@ import numpy as np
 import torch
 import torch.nn as nn
 
+from model.utils import const
+
 def deprocess(img):
     return img * 127.5 + 127.5
 
 def plot_batch(generator, device, batch_size, noise_dim):
     n_images = 64
     generator.eval()
-    noise = torch.randn(batch_size, noise_dim, device=device)
+    noise = torch.randn(
+        n_images,
+        noise_dim,
+        1,
+        1,
+        device=device
+    )
 
     gen_batch = generator(noise).detach().cpu()
     plt.figure(figsize=(16, 4))
@@ -144,3 +152,16 @@ def spatial_dim(H, W, D, R, S, Z,)-> int:
     num = (V - R) + 2*Z
     den = S + 1
     return num / den
+
+
+
+def initialize_weights(model, path = None):
+    # Initializes weights according to the DCGAN paper
+    if path is None:
+        for m in model.modules():
+            if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d, nn.BatchNorm2d)):
+                nn.init.normal_(m.weight.data, 0.0, 0.02)
+    else:
+        pre_trained = torch.load(path)
+        model.load_state_dict(pre_trained)
+

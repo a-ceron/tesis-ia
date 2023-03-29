@@ -80,9 +80,16 @@ class DataLoaderFactory:
         )
         return train, test
 
-    def get_galaxy(path, transform, batch_size, shuffle=True, train_split=0.2):
+    def get_galaxy(path, transform, batch_size, shuffle=True, train_split=None):
         dataset = get_galaxy_dataset(path, transform)
-
+        if train_split is None:
+            train_dataloader = DataLoader(
+                dataset,
+                batch_size=batch_size,
+                shuffle=shuffle
+            )
+            return train_dataloader
+        
         train_len = int(len(dataset)*train_split)
         train, test = dataManipulator.random_split(
             dataset,
@@ -129,7 +136,7 @@ def get_galaxy_dataloader(path, transform, batch_size, shuffle=True):
 
 
 def get_galaxy_dataset(path, transform):
-    return dataManipulator.Lens2(path, transform)
+    return dataManipulator.Lens2(path, transform, 10000)
     
 
 def get_stl10_dataset(root, train, download, transform):

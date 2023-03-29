@@ -66,10 +66,12 @@ class Lens(Dataset):
         return self.length
 
 class Lens2(Dataset):
-    def __init__(self, path:str, transform=None) -> None:
+    def __init__(self, path:str, transform=None, max:int=-1) -> None:
         super(Lens2, self).__init__()
         self.path = path + '/'
         self.path_elements = listdir(path)
+        if max > 0:
+            self.path_elements = self.path_elements[:max]
         self.length = len(self.path_elements)
         self.transform = transform
 
@@ -77,11 +79,9 @@ class Lens2(Dataset):
         img = self.path_elements[index]
         path = self.path + img
         img = Image.open(path).convert('RGB')
-        if img.verify():
-            if self.transform:
-                img = self.transform(img)
-            return img
-        return self.path_elements.pop(index)
+        if self.transform:
+            img = self.transform(img)
+        return img
 
     def __len__(self) -> int:
         return self.length

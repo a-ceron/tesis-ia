@@ -16,10 +16,12 @@ IIMAS, UNAM
 from torch import nn
 
 from model.CNNs.aCNN import ariCNN
+from model.GANs.aGAN import ariDiscriminator, ariGenerator
+
 from model.utils import tools, const
 
 import torch
-
+import torch.nn.functional as F
 
 class Trainer:
     def __init__(self) -> None:
@@ -29,10 +31,7 @@ class Trainer:
         return self._name
     def train(self): return self
     def test(self): return self
-    def save(self):
-        if self.model is not None:
-            torch.save(self.model.state_dict(), const.PATH_TO_SAVE_MODEL)
-        return False
+    def save(self): return self
     
 
 class CNNTrainer(Trainer):
@@ -94,11 +93,119 @@ class CNNTrainer(Trainer):
             'test_CNN_figure_st.png',
             self.classes
         )
+
+    def save(self, name):
+        torch.save(self.model.state_dict(), const.PATH_TO_SAVE_MODEL + name)
     
 
 class SimpleGANTrainer(Trainer):
+    """Entrena un modelo GAN
+    
+    Intentamos entrenar el modelo Discriminador
+    para maximizar la probabilidad de assignar una
+    etiqueta correcta a las imágenes reales y falsas. 
+    Simultaneamente entrenamos el modelo Generador
+    para minimizar la perdida
+
+            log(1 - D(G(z)))
+    """
     def __init__(self, dataloader, device) -> None:
         super().__init__()
         self._name = self._name + "SimpleGANTrainer"
         self.dataloader = dataloader
         self.device = device
+
+    def _propagator(self, imgs, batch_size, label):
+        y_true = torch.full([batch_size], label, dtype=torch.float, device=self.device)
+        y_pred = self.dis(imgs.to(self.device), True).view(-1)
+
+        loss = F.binary_cross_entropy(y_pred, y_true)
+        loss.backward()
+
+        return loss.item()
+
+    def train(self, p_disc=None, p_gen=None, num_epochs=10):
+        """Se repinte por el número de épocas
+        y por cada época se repite por cada batch
+
+        Seleccionamos un conjunto de puntos del espacio
+        lantente y los pasamos por el modelo generador
+
+        """
+        z_dim = 100
+        img_channels = 3
+
+        dis_loss = 0
+        gen_loss = 0
+
+        self.gen = ariGenerator(z_dim).to(self.device)
+        self.dis = ariDiscriminator(img_channels).to(self.device)
+        
+        tools.initialize_weights(self.dis, p_disc)
+        tools.initialize_weights(self.gen, p_gen)
+
+        optim_gen = torch.optim.Adam(
+            self.gen.parameters(),
+            lr=0.0002,
+            betas=(0.5, 0.999)
+        )
+        optim_dis = torch.optim.Adam(
+            self.dis.parameters(),
+            lr=0.0002,
+            betas=(0.5, 0.999)
+        )
+        
+        for epoch in range(num_epochs): # Epocas
+            for item, real_imgs in enumerate(self.dataloader):   # Batches
+                if isinstance(real_imgs, tuple):
+                    real_imgs = real_imgs[0]
+                # Entrenamos el modelo generador
+                self.dis.zero_grad()
+                dis_real_loss = self._propagator(
+                    real_imgs,
+                    real_imgs.shape[0],
+                    1,  # Etiqueta real
+                )
+
+                z = torch.randn(
+                    real_imgs.shape[0],
+                    z_dim,
+                    1,
+                    1,
+                    device=self.device
+                )
+                fake_imgs = self.gen(z)
+                dis_fake_loss = self._propagator(
+                    fake_imgs.detach(),
+                    fake_imgs.shape[0],
+                    0,  # Etiqueta falsa
+                )
+                optim_dis.step()
+
+                dis_loss = dis_real_loss + dis_fake_loss
+
+                # Entrenamos el modelo generador
+                self.gen.zero_grad()
+                gen_loss = self._propagator(
+                    fake_imgs,
+                    fake_imgs.shape[0],
+                    1,  # Etiqueta real
+                )
+                optim_gen.step()
+            print(f"Epoch [{epoch+1}/{num_epochs}], Loss D: {dis_loss:.4f}, Loss G: {gen_loss:.4f}")
+
+
+        tools.plot_batch(
+            self.gen,
+            self.device,
+            real_imgs.shape[0],
+            z_dim
+        )
+    
+    def save(self, name):
+        torch.save(self.gen.state_dict(), const.PATH_TO_SAVE_MODEL  + '_gen_' + name)
+        torch.save(self.dis.state_dict(), const.PATH_TO_SAVE_MODEL  + '_dis_' + name)
+
+    def test(self):
+        raise NotImplementedError
+        
