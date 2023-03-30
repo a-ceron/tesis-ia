@@ -160,7 +160,7 @@ def initialize_weights(model, path = None):
     if path is None:
         for m in model.modules():
             if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d, nn.BatchNorm2d)):
-                nn.init.normal_(m.weight.data, 0.0, 0.02)
+                nn.init.normal_(m.weight.data, 0.5, 0.02)
     else:
         pre_trained = torch.load(path)
         model.load_state_dict(pre_trained)

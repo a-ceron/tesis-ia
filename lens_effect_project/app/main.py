@@ -57,8 +57,32 @@ def train_and_test_simple_gan():
     )
 
 
+def train_and_test_wgan():
+    transform = transforms.Compose([
+        transforms.Resize((64, 64)),
+        transforms.ToTensor(),
+    ])
+    train_dataloader = DataLoaderFactory.get_galaxy(
+        const.PATH_OF_PREDOs_PC,
+        transform,
+        const.BATCH_SIZE_128
+    )
+
+    device = tools.select_device()
+
+    trainer = trainers.WGANTrainer(train_dataloader, device)
+
+    # p_disc = '/home/ariel/Documents/tesis-ia/lens_effect_project/app/data/save_model/save_modelsimple_gan_model_dis'
+    # p_gen = '/home/ariel/Documents/tesis-ia/lens_effect_project/app/data/save_model/save_modelsimple_gan_model_gen'
+    # trainer.train(p_disc, p_gen, 1)
+    trainer.train()
+
+    trainer.save(
+        'wgan_model.pth'
+    )
+
 def main():
-    train_and_test_simple_gan()
+    train_and_test_wgan()
     
 
 if __name__ == '__main__':
