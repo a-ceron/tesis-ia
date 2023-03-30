@@ -227,8 +227,6 @@ class WGANTrainer(Trainer):
         self._name = self._name + "WGANTrainer"
         self.dataloader = dataloader
         self.device = device
-
-
     
     def _critic_train(self, real_imgs, batch_size, z_dim, iterations, optimizer, weigth_clip):
         for _ in range(iterations):
@@ -253,6 +251,144 @@ class WGANTrainer(Trainer):
 
             for p in self.dis.parameters():
                 p.data.clamp_(-weigth_clip, weigth_clip)
+
+        return fake_imgs
+
+    def train(self, p_disc=None, p_gen=None, num_epochs=10):
+        """Se repinte por el número de épocas
+        y por cada época se repite por cada batch
+
+        Seleccionamos un conjunto de puntos del espacio
+        lantente y los pasamos por el modelo generador
+
+        """
+        z_dim = 100
+        img_channels = 3
+        criterion_iter = 5
+        weigth_clip = 0.01
+
+        dis_loss = 0
+        gen_loss = 0
+
+        self.gen = ariWGenerator(z_dim).to(self.device)
+        self.dis = ariWDiscriminator(img_channels).to(self.device)
+        
+        tools.initialize_weights(self.dis, p_disc)
+        tools.initialize_weights(self.gen, p_gen)
+
+        optim_gen = torch.optim.RMSprop(
+            self.gen.parameters(),
+            lr=0.0002,
+        )
+        optim_dis = torch.optim.RMSprop(
+            self.dis.parameters(),
+            lr=0.0002,
+        )
+        
+        for epoch in range(num_epochs): # Epocas
+            for item, real_imgs in enumerate(self.dataloader):   # Batches
+                if isinstance(real_imgs, tuple):
+                    real_imgs = real_imgs[0]
+                    
+                # Entrenamos el modelo discriminador
+                fake = self._critic_train(
+                    real_imgs,
+                    real_imgs.shape[0],
+                    z_dim,
+                    criterion_iter,
+                    optim_dis,
+                    weigth_clip
+                )
+
+                # Entrenamos el modelo generador
+                output = self.dis(fake, True).view(-1)
+                loss = -torch.mean(output)
+                self.gen.zero_grad()
+                loss.backward()
+                optim_gen.step()
+
+            print(f"Epoch [{epoch+1}/{num_epochs}], Loss D: {dis_loss:.4f}, Loss G: {gen_loss:.4f}")
+
+
+        tools.plot_batch(
+            self.gen,
+            self.device,
+            z_dim,
+            'wgan'
+        )
+    
+    def save(self, name):
+        torch.save(self.gen.state_dict(), const.PATH_TO_SAVE_MODEL  + '_gen_' + name)
+        torch.save(self.dis.state_dict(), const.PATH_TO_SAVE_MODEL  + '_dis_' + name)
+
+    def test(self):
+        raise NotImplementedError
+    
+
+class WGANGPTrainer(Trainer):
+    """Entrena un modelo GAN
+    
+    Intentamos entrenar el modelo Discriminador
+    para maximizar la probabilidad de assignar una
+    etiqueta correcta a las imágenes reales y falsas. 
+    Simultaneamente entrenamos el modelo Generador
+    para minimizar la perdida
+
+            log(1 - D(G(z)))
+    """
+    def __init__(self, dataloader, device) -> None:
+        super().__init__()
+        self._name = self._name + "WGANTrainer"
+        self.dataloader = dataloader
+        self.device = device
+
+    def _gradient_penalty(self, real_imgs, fake_imgs, batch_size):
+        epsilon = torch.rand(
+            (batch_size, 1, 1, 1),
+            device=self.device
+        ).repeat(1, 3, 64, 64)
+        interpolated = (
+            epsilon * real_imgs + ((1 - epsilon) * fake_imgs)
+        )
+        interpolated.requires_grad = True
+
+        mixed_scores = self.dis(interpolated, True)
+
+        gradient = torch.autograd.grad(
+            inputs=interpolated,
+            outputs=mixed_scores,
+            grad_outputs=torch.ones_like(mixed_scores),
+            create_graph=True,
+            retain_graph=True
+        )[0]
+
+        gradient = gradient.view(gradient.shape[0], -1)
+        gradient_norm = gradient.norm(2, dim=1)
+        gp = torch.mean((gradient_norm - 1) ** 2)
+        return gp
+    
+    def _critic_train(self, real_imgs, batch_size, z_dim, iterations, optimizer, weigth_clip):
+        for _ in range(iterations):
+            noise = torch.randn(
+                batch_size,
+                z_dim,
+                1,
+                1,
+                device=self.device
+            )
+            fake_imgs = self.gen(noise)
+            
+            critic_real = self.dis(real_imgs.to(self.device), True).view(-1)
+            critic_fake = self.dis(fake_imgs.detach().to(self.device), True).view(-1)
+            gp = self._gradient_penalty(real_imgs, fake_imgs, batch_size)
+            loss = (
+                -torch.mean(critic_real) + torch.mean(critic_fake) + 10 * gp
+            )
+
+            self.dis.zero_grad()
+            loss.backward(retain_graph=True)
+
+            optimizer.step()
 
         return fake_imgs
 
@@ -317,8 +453,8 @@ class WGANTrainer(Trainer):
         tools.plot_batch(
             self.gen,
             self.device,
-            real_imgs.shape[0],
-            z_dim
+            z_dim,
+            'wgan'
         )
     
     def save(self, name):

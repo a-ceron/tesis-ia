@@ -11,7 +11,7 @@ from model.utils import const
 def deprocess(img):
     return img * 127.5 + 127.5
 
-def plot_batch(generator, device, batch_size, noise_dim):
+def plot_batch(generator, device, noise_dim, name):
     n_images = 64
     generator.eval()
     noise = torch.randn(
@@ -31,7 +31,7 @@ def plot_batch(generator, device, batch_size, noise_dim):
         plt.imshow(np.transpose(plot_batch[i], [1, 2, 0]).numpy().astype("uint8"))
         plt.axis('off')
     n = np.random.randint(1000)
-    plt.savefig(const.PATH_TO_SAVE_FIG+f'/{n}.png')
+    plt.savefig(const.PATH_TO_SAVE_FIG+name+f'/{n}.png')
     
 def gradient_penalty(critic, real, fake, device="cpu"):
     BATCH_SIZE, C, H, W = real.shape
