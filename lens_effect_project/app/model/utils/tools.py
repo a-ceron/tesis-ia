@@ -31,7 +31,7 @@ def plot_batch(generator, device, noise_dim, name):
         plt.imshow(np.transpose(plot_batch[i], [1, 2, 0]).numpy().astype("uint8"))
         plt.axis('off')
     n = np.random.randint(1000)
-    plt.savefig(const.PATH_TO_SAVE_FIG+name+f'/{n}.png')
+    plt.savefig(const.PATH_TO_SAVE_FIG+ '/' +name+f'_{n}.png')
     
 def gradient_penalty(critic, real, fake, device="cpu"):
     BATCH_SIZE, C, H, W = real.shape

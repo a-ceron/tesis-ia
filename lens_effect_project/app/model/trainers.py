@@ -338,7 +338,7 @@ class WGANGPTrainer(Trainer):
     """
     def __init__(self, dataloader, device) -> None:
         super().__init__()
-        self._name = self._name + "WGANTrainer"
+        self._name = self._name + "WGANGPTrainer"
         self.dataloader = dataloader
         self.device = device
 
@@ -367,7 +367,7 @@ class WGANGPTrainer(Trainer):
         gp = torch.mean((gradient_norm - 1) ** 2)
         return gp
     
-    def _critic_train(self, real_imgs, batch_size, z_dim, iterations, optimizer, weigth_clip):
+    def _critic_train(self, real_imgs, batch_size, z_dim, iterations, optimizer):
         for _ in range(iterations):
             noise = torch.randn(
                 batch_size,
@@ -392,7 +392,7 @@ class WGANGPTrainer(Trainer):
 
         return fake_imgs
 
-    def train(self, p_disc=None, p_gen=None, num_epochs=10):
+    def train(self, p_disc=None, p_gen=None, num_epochs=30):
         """Se repinte por el número de épocas
         y por cada época se repite por cada batch
 
@@ -403,7 +403,6 @@ class WGANGPTrainer(Trainer):
         z_dim = 100
         img_channels = 3
         criterion_iter = 5
-        weigth_clip = 0.01
 
         dis_loss = 0
         gen_loss = 0
