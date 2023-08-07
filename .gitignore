@@ -139,3 +139,17 @@ pyTorch/imgs/*
 lens_effect_project/app/lens-data/figures
 lens_effect_project/app/lens-data/training-runs
 lens_effect_project/app/data
+
+## Latex files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.run.xml
+*.synctex.gz
+*.toc
+*.pdf
